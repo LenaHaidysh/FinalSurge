@@ -23,7 +23,7 @@ public class BaseTest {
     WorkoutDetailsPage workoutDetailsPage;
     WorkoutAddingPage workoutAddingPage;
     String email="aromantikova@mail.ru";
-    String password="Aroma9091!!";
+    String password="Pswrd1234!!";//Pswrd1234!!
     String monthTraining = "4";  //месяц, в котором планируется тренировка, устанавливать номер текущего месяца
 
     @BeforeMethod (description = "Opening browser")
