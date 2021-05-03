@@ -1,10 +1,7 @@
 package pages;
 
 import io.qameta.allure.Step;
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
@@ -31,12 +28,7 @@ public class CalendarPage extends BasePage {
         super(driver);
     }
 
-    //добавить везде степы и описание
-    //мб добавить js click
-    //WebElement element = driver.findElement(By.id("gbqfd"));
-    //JavascriptExecutor executor = (JavascriptExecutor)driver;
-    //((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
-    //try catch в base test
+
     @Step("Opening CalendarPage")
     public CalendarPage open() {
         driver.get("https://log.finalsurge.com/Calendar.cshtml");
@@ -62,10 +54,11 @@ public class CalendarPage extends BasePage {
         driver.findElement(WORKOUT_NAME).sendKeys(workoutName);
         driver.findElement(ADD_WORKOUT_BUTTON).click();
     }
+
     @Step("Deleting Training")
     public void deleteTraining(String dayDelete, String dataDate) {
-        List<WebElement> activities = driver.findElements(By.xpath(String.format(ACTIVITIES_LIST_ON_DAY,dayDelete)));
-        activities.get(0).click();
+        List<WebElement> activities = driver.findElements(By.xpath(String.format(ACTIVITIES_LIST_ON_DAY, dayDelete)));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", activities.get(0));
         driver.findElement(By.xpath(String.format(DELETE_BUTTON, dataDate))).click();
         driver.findElement(OK_BUTTON).click();
     }
@@ -77,31 +70,41 @@ public class CalendarPage extends BasePage {
             Assert.fail("Страница с модалкой не исчезла");
         }
     }
+
+    @Step("Get Training List")
+    public List<WebElement> getTrainingList(String day) {
+        List<WebElement> activities = driver.findElements(By.xpath(String.format(ACTIVITIES_LIST_ON_DAY, day)));
+        return activities;
+    }
+
     @Step("Drag and drop Training")
-    public void dragAndDropTraining(String dayDrag,String dayForDragAndDrop) {
-        List<WebElement> activities = driver.findElements(By.xpath(String.format(ACTIVITIES_LIST_ON_DAY,dayDrag)));
+    public void dragAndDropTraining(String dayDrag, String dayForDragAndDrop) {
+        List<WebElement> activities = driver.findElements(By.xpath(String.format(ACTIVITIES_LIST_ON_DAY, dayDrag)));
         Actions action = new Actions(driver);
         WebElement DragPlace = driver.findElement(By.xpath(String.format(DRAG_PLACE, dayForDragAndDrop)));
         action.dragAndDrop(activities.get(activities.size() - 1), DragPlace).build().perform();
     }
 
+    @Step("Get ErrorMessage")
     public String getErrorMessage() {
         return driver.findElement(ALERT).getText();
     }
 
     @Step("View details")
     public void viewDetails(String dayView, String dataDate) {
-        List<WebElement> activities = driver.findElements(By.xpath(String.format(ACTIVITIES_LIST_ON_DAY,dayView)));
-        activities.get(0).click();
+        List<WebElement> activities = driver.findElements(By.xpath(String.format(ACTIVITIES_LIST_ON_DAY, dayView)));
+        try {
+            activities.get(0).click();
+        } catch (ElementClickInterceptedException exception) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", activities.get(0));
+        }
         driver.findElement(By.xpath(String.format(VIEW_BUTTON, dataDate))).click();
     }
 
     public void isPageOpened() {
-        try {
-            driver.findElement(SELECT_NAV);
-        } catch (NoSuchElementException ex) {
-            Assert.fail("Страница с календарем тренировок не была загружена");
-        }
+        findElement(SELECT_NAV, "Страница с календарем тренировок не была загружена");
     }
+
+
 }
 
