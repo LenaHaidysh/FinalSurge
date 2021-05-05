@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-public class LoginTest extends BaseTest{
+public class LoginTest extends BaseTest {
 
     @Test(retryAnalyzer = Retry.class)
     public void emptyEmail() {
@@ -18,7 +18,7 @@ public class LoginTest extends BaseTest{
     }
 
     @Test(description = "Check login with empty Password")
-    public void emptyPassword(){
+    public void emptyPassword() {
         loginPage.open();
         loginPage.login(email, "");
         String error = loginPage.getErrorMessage();
@@ -26,11 +26,11 @@ public class LoginTest extends BaseTest{
     }
 
     @Test(description = "Check login with valid Login And Password")
-    public void validLoginAndPassword(){
+    public void validLoginAndPassword() {
         loginPage.open();
         loginPage.login(email, password);
         WebElement profileIcon = driver.findElement(By.id("LayoutProfilePic"));
-        assertTrue(profileIcon.isDisplayed(), "Добавленного продукта нет в корзине");
+        assertTrue(profileIcon.isDisplayed(), "Логин прошел неуспешно");
     }
 
 }

@@ -12,6 +12,7 @@ import pages.LoginPage;
 import pages.WorkoutAddingPage;
 import pages.WorkoutDetailsPage;
 
+import java.time.LocalDate;
 import java.util.concurrent.TimeUnit;
 
 @Listeners(TestListener.class) //будет слушать все тесты
@@ -22,22 +23,28 @@ public class BaseTest {
     CalendarPage calendarPage;
     WorkoutDetailsPage workoutDetailsPage;
     WorkoutAddingPage workoutAddingPage;
-    String email="aromantikova@mail.ru";
-    String password="Pswrd1234!!";//Pswrd1234!!
-    String monthTraining = "4";  //месяц, в котором планируется тренировка, устанавливать номер текущего месяца
+    PropertyReader propertyReader;
+    String email;
+    String password;
+    String monthTraining;  //месяц, в котором планируется тренировка, устанавливать номер текущего месяца
 
-    @BeforeMethod (description = "Opening browser")
+    @BeforeMethod(description = "Opening browser")
     public void setup(ITestContext context) {
-        //driver = new ChromeDriver(CapabilitiesGenerator.getChromeOptions());
+        LocalDate today = LocalDate.now();
+        int month = today.getMonthValue();
+        monthTraining = String.valueOf(month);
+        email = System.getenv().getOrDefault("FS_EMAIL", propertyReader.getProperty("email"));
+        password = System.getenv().getOrDefault("FS_PASSWORD", propertyReader.getProperty("password"));
         WebDriverManager.chromedriver().setup();
-        driver=new ChromeDriver();
-        driver.manage().window().maximize();//нужно в каждом проекте, на весь экран;
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
         context.setAttribute("driver", driver);
         loginPage = new LoginPage(driver);
         calendarPage = new CalendarPage(driver);
         workoutDetailsPage = new WorkoutDetailsPage(driver);
         workoutAddingPage = new WorkoutAddingPage(driver);
+        propertyReader = new PropertyReader();
     }
 
     @AfterMethod(alwaysRun = true)

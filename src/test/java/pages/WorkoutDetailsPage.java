@@ -13,6 +13,7 @@ public class WorkoutDetailsPage extends BasePage {
 
     public static final By UPLOAD_BUTTON = By.cssSelector("[data-reveal-id=WorkoutUpload]");
     public static final By ERROR_MESSAGE = By.className("error");
+    public static final By ELEMENT_FILE = By.className("muted");
 
     public WorkoutDetailsPage(WebDriver driver) {
         super(driver);
@@ -48,11 +49,23 @@ public class WorkoutDetailsPage extends BasePage {
         }
     }
 
-    public void switchToDefaultContent(){
+    @Step("Switch To Default Content")
+    public void switchToDefaultContent() {
         driver.switchTo().defaultContent();
     }
 
-    public String getErrorMessage(){
+    @Step("Check Loading File")
+    public boolean checkLoadingFile() {
+        try {
+            driver.findElement(ELEMENT_FILE);
+            return true;
+        } catch (NoSuchElementException ex) {
+            return false;
+        }
+    }
+
+    @Step("Get Error Message")
+    public String getErrorMessage() {
         driver.findElement(By.id("saveButton")).click();
         return driver.findElement(ERROR_MESSAGE).getText();
     }
