@@ -1,58 +1,42 @@
-# Java Maven CircleCI 2.0 configuration file
+# Java Gradle CircleCI 2.0 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-java/ for more details
-# https://circleci.com/docs/2.0/browser-testing/#selenium
+#
 version: 2
 jobs:
-  ui-tests:
+  build:
     docker:
-      - image: circleci/openjdk:8u265-jdk-browsers
+      # specify the version you desire here
+      - image: circleci/openjdk:8-jdk
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
     working_directory: ~/repo
+
     environment:
-    # get from git and get maven dependencies
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+
     steps:
       - checkout
+
+      # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-{{ checksum "build.gradle" }}
+            # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
-      - run: mvn dependency:go-offline
+
+      - run: gradle dependencies
+
       - save_cache:
           paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle" }}
 
       # run tests!
-      - run:
-          name: Get chrome version
-          command: google-chrome --version
-      - run:
-          name: Setting chmod for Chrome
-          command: chmod 777 src/test/resources/webdrivers/linux/chromedriver
-      - run:
-          name: Running tests
-          command: mvn clean install
-      - run:
-          name: Generate allure report
-          command: mvn allure:report
-          when: always
-      - store_test_results:
-          path: target/surefire-reports/junitreports
-          when: always
-      - store_artifacts:
-          path: target/site/allure-maven-plugin/
-workflows:
-  version: 2
-  commit:
-    jobs:
-      - ui-tests
-  periodical:
-    triggers:
-      - schedule:
-          cron: "1 4,8,12 * * *"
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - ui-tests
+      - run: gradle test
